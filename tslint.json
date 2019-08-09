@@ -5,7 +5,8 @@
   ],
   "linterOptions": {
     "exclude": [
-      "node_modules/**"
+      "node_modules/**",
+      "public/data/**"
     ]
   },
   "rules": {
@@ -14,6 +15,9 @@
     "no-consecutive-blank-lines": false,
     "object-literal-sort-keys": false,
     "ordered-imports": false,
-    "quotemark": [true, "single"]
+    "quotemark": [true, "single"],
+    "member-access": [true, "no-public"],
+    "arrow-parens": [true, "ban-single-arg-parens"],
+    "no-shadowed-variable": false
   }
 }
