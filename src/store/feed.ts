@@ -4,7 +4,7 @@ import {
   GetterTree,
   MutationTree,
 } from 'vuex';
-import { VideoState, Video } from '@type';
+import { VideoState, Video, Favorite } from '@type';
 import feedData from '../../public/data/videos.json';
 
 type VideoModule = Module<VideoState, any>;
@@ -14,39 +14,52 @@ type VideoMutation = MutationTree<VideoState>;
 
 const state: VideoState = {
   allVideos: feedData.sort((a, b) => (a.id < b.id) ? 1 : -1),
-  currentVideo: undefined,
-  nextVideos: undefined,
+  currentVideo: {
+    hls_feed: "",
+    id: -1,
+    image_url: "",
+    title: "",
+  },
+  nextVideos: [],
+  favorites: [],
 };
 
 const getters: VideoGetter = {
-  favorites: state => state.allVideos.filter((video: Video) => video.favorite),
+  favorite: state => {
+    for (let i = 0; i < state.favorites.length; i++) {
+      if (state.favorites[i].id === state.currentVideo.id) {
+        return true;
+      }
+    }
+  },
 };
 
 const actions: VideoAction = {
-  updateCurrentVideo({ commit, dispatch }, id: string): void {
+  updateCurrentVideo({ commit, dispatch, state }, id: string): void {
     const videoId: number = parseInt(id, 10);
     const currentVideo = state.allVideos.find(video => video.id === videoId) as Video;
 
     commit('updateCurrentVideo', currentVideo);
     dispatch('getNextVideos');
   },
-  toggleFavorite({ commit }): void {
-    if (!state.currentVideo) {
-      return;
+  setFavorite({ commit, state }): void {
+    for (let i = 0; i < state.favorites.length; i++) {
+      if (state.favorites[i].id === state.currentVideo.id) {
+        commit('removeFavorite', i);
+        return;
+      }
     }
 
-    const currentVideo = { ...state.currentVideo } as Video;
-    currentVideo.favorite = !currentVideo.favorite;
+    const newFavorite: Favorite = {
+      ...state.currentVideo,
+      added: new Date().getTime(),
+    }
 
-    commit('toggleFavorite', currentVideo);
+    commit('addFavorite', newFavorite);
   },
-  getNextVideos({ commit }): void {
-    if (!state.currentVideo) {
-      return;
-    }
-
+  getNextVideos({ commit, state }): void {
     // specifying type for object destructuring is uglier than not using destructuring
-    const id: number = state.currentVideo.id;
+    const { id } = state.currentVideo;
     const nextVideos: Video[] = state.allVideos.filter(video => video.id < id).slice(0, 3);
 
     // Instead of displaying "no more videos", repeat from start
@@ -64,23 +77,16 @@ const actions: VideoAction = {
 
 const mutations: VideoMutation = {
   updateCurrentVideo(state, currentVideo: Video): void {
-    if (!state.currentVideo) {
-      state.currentVideo = currentVideo;
-      return;
-    }
-
-    Object.assign(state.currentVideo, currentVideo);
+    state.currentVideo = { ...state.currentVideo, ...currentVideo };
   },
-  toggleFavorite(state, currentVideo: Video): void {
-    Object.assign(state.currentVideo, currentVideo);
+  addFavorite(state, favorite: Favorite): void {
+    state.favorites.push(favorite);
+  },
+  removeFavorite(state, index: number): void {
+    state.favorites.splice(index, 1);
   },
   getNextVideos(state, nextVideos: Video[]): void {
-    if (!state.nextVideos) {
-      state.nextVideos = nextVideos;
-      return;
-    }
-
-    Object.assign(state.nextVideos, nextVideos);
+    state.nextVideos = nextVideos;
   },
 };
 

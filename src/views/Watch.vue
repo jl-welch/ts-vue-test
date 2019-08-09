@@ -22,6 +22,8 @@
         <button 
           type="button"
           class="video__favorite"
+          :class="{ 'video__favorite--true': favorite }"
+          @click="updateFavorites"
         >Add to Favorites</button>
       </div>
     </div>
@@ -36,9 +38,10 @@
   import { Component, Vue } from 'vue-property-decorator';
   import {
     State,
+    Getter,
     Action,
   } from 'vuex-class';
-  import { VideoState } from '@type';
+  import { VideoState, Video } from '@type';
   import Listing from '@/components/Listing.vue';
   const namespace: string = 'videoFeed';
 
@@ -54,7 +57,14 @@
   export default class Watch extends Vue {
     loading: boolean = true;
     @State('videoFeed') videoFeed!: VideoState;
+    @State('favorites', { namespace }) favorites!: Video[];
+    @Getter('favorite', { namespace }) favorite!: boolean;
     @Action('updateCurrentVideo', { namespace }) updateCurrentVideo: any;
+    @Action('setFavorite', { namespace }) setFavorite: any;
+
+    updateFavorites() {
+      this.setFavorite();
+    }
 
     updateView(id: string): void {
       this.updateCurrentVideo(id);

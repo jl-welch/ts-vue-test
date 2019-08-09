@@ -15,7 +15,7 @@
       >Favorites</button>
     </div>
     <Listing
-      :feed="isAll ? videoFeed.allVideos : favorites"
+      :feed="isAll ? videoFeed.allVideos : videoFeed.favorites"
     />
   </div>
 </template>
@@ -40,12 +40,11 @@
 
   export default class Home extends Vue {
     @State('videoFeed') videoFeed!: VideoState;
-    @Getter('favorites', { namespace }) favorites!: Video[];
+    @Getter('favorite', { namespace }) favorite!: Video[];
     isAll: boolean = true;
 
     tab(all: boolean): void {
       this.isAll = all;
-      this.favorites = this.$store.getters['videoFeed/favorites']();
     }
   }
 </script>

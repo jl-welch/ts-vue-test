@@ -2,17 +2,20 @@
 
 export interface VideoState {
   allVideos: Video[];
-  currentVideo?: Video;
-  nextVideos?: Video[];
+  nextVideos: Video[];
+  favorites: Favorite[];
+  currentVideo: Video;
 }
 
 // models
 
 export interface Video {
-  hls_feed: string;
   id: number;
-  image_url: string;
   title: string;
-  favorite?: boolean;
-  dateFavorited?: Date;
+  hls_feed: string;
+  image_url: string;
+}
+
+export interface Favorite extends Video {
+  added: number;
 }
