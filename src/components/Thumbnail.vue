@@ -27,6 +27,7 @@ export default class Thumbnail extends Vue {
 </script>
 
 <style scoped lang="scss">
+  $thumbnail-margin-right:          2%;
   $thumbnail-margin-bottom:         2.5rem;
   $thumbnail-flex-basis:            32%;
 
@@ -39,8 +40,13 @@ export default class Thumbnail extends Vue {
   $thumbnail-title-font-weight:     400;
 
   .thumbnail {
+    margin-right: $thumbnail-margin-right;
     margin-bottom: $thumbnail-margin-bottom;
     flex-basis: $thumbnail-flex-basis;
+
+    &:nth-child(3n) {
+      margin-right: 0;
+    }
 
     &:hover {
       .thumbnail__link { text-decoration: underline; }
