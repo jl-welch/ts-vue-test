@@ -4,21 +4,16 @@
       class="video"
       v-if="!loading"
     >
-      <!-- DEVTODO get video to actually play -->
       <video
         class="video__player"
+        ref="video"
         playsinline
         controls
         :poster="videoFeed.currentVideo.image_url"
-      >
-        <source 
-          :src="videoFeed.currentVideo.hls_feed"
-          type="application/x-mpegURL"
-        >
-      </video>
+        :data-src="videoFeed.currentVideo.hls_feed"
+      ></video>
       <div class="video__meta">
         <h1 class="video__title">{{ videoFeed.currentVideo.title }}</h1>
-        <!-- DEVTODO toggle favorite with Vuex action -->
         <button 
           type="button"
           class="video__favorite"
@@ -43,6 +38,7 @@
   } from 'vuex-class';
   import { VideoState, Video } from '@type';
   import Listing from '@/components/Listing.vue';
+  import Hls from 'hls.js';
   const namespace: string = 'videoFeed';
 
   Component.registerHooks([
@@ -62,6 +58,26 @@
     @Action('updateCurrentVideo', { namespace }) updateCurrentVideo: any;
     @Action('setFavorite', { namespace }) setFavorite: any;
 
+    playVideo() {
+      const video: any = this.$refs.video;
+
+      // Bit of a hacky way to get the next video
+      const nextVideo: any = this.$el.querySelector('.thumbnail__link');
+      // and 'click' it after the current one finishes
+      video.addEventListener('ended', () => {
+        nextVideo.click();
+      });
+
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(video.getAttribute('data-src'));
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, _ => {
+          video.play();
+        });
+      }
+    }
+
     updateFavorites() {
       this.setFavorite();
     }
@@ -73,6 +89,9 @@
 
     mounted(): void {
       this.updateView(this.$route.params.id);
+      this.$nextTick(() => {
+        this.playVideo();
+      });
     }
   }
 </script>

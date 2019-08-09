@@ -15,10 +15,10 @@ type VideoMutation = MutationTree<VideoState>;
 const state: VideoState = {
   allVideos: feedData.sort((a, b) => (a.id < b.id) ? 1 : -1),
   currentVideo: {
-    hls_feed: "",
+    hls_feed: '',
     id: -1,
-    image_url: "",
-    title: "",
+    image_url: '',
+    title: '',
   },
   nextVideos: [],
   favorites: [],
@@ -26,8 +26,8 @@ const state: VideoState = {
 
 const getters: VideoGetter = {
   favorite: state => {
-    for (let i = 0; i < state.favorites.length; i++) {
-      if (state.favorites[i].id === state.currentVideo.id) {
+    for (const favorite of state.favorites) {
+      if (favorite.id === state.currentVideo.id) {
         return true;
       }
     }
@@ -53,7 +53,7 @@ const actions: VideoAction = {
     const newFavorite: Favorite = {
       ...state.currentVideo,
       added: new Date().getTime(),
-    }
+    };
 
     commit('addFavorite', newFavorite);
   },
